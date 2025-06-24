@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import dujardin.thomas.examTestsM1Dujardin.dto.UserDto;
+import dujardin.thomas.examTestsM1Dujardin.exception.DataIntegrityViolationException;
 import dujardin.thomas.examTestsM1Dujardin.exception.ObjectNotFoundException;
 import dujardin.thomas.examTestsM1Dujardin.model.User;
 import dujardin.thomas.examTestsM1Dujardin.repository.UserRepository;
@@ -23,6 +24,9 @@ public class UserService implements CrudService<User, UserDto, Long> {
     }
 
     public UserDto createUser(User user) {
+        if(userRepository.findByEmail(user.getEmail()) != null) {
+            throw new DataIntegrityViolationException("Email already exists: " + user.getEmail());
+        }
         return convertDaoToDTO(userRepository.save(user));
     }
 
