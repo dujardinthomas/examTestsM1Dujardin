@@ -1,7 +1,6 @@
 package dujardin.thomas.examTestsM1Dujardin.service;
 
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,13 +16,17 @@ public class UserService implements CrudService<User, UserDto, Long> {
 
     @Autowired
     private UserRepository userRepository;
-
+    
     @Override
     public UserDto create(UserDto dto) {
-        return convertDaoToDTO(userRepository.save(convertDtoToDAO(dto)));
+        User user = convertDtoToDAO(dto);
+        if (user.getPassword() == null || user.getPassword().isEmpty()) {
+            user.setPassword("defaultPassword123");
+        }
+        return convertDaoToDTO(userRepository.save(user));
     }
 
-    public UserDto createUser(User user) {
+    public UserDto createWithPassword(User user) {
         if(userRepository.findByEmail(user.getEmail()) != null) {
             throw new DataIntegrityViolationException("Email already exists: " + user.getEmail());
         }

@@ -43,16 +43,28 @@ public class UserController {
     public ResponseEntity<Object> getUserById(@PathVariable Long id) {
         UserDto user = userService.get(id);
         return ResponseEntity.ok(user);
-    }
-
+    }    
+    
+    
     @PostMapping
     public ResponseEntity<Object> createUser(@Valid @RequestBody User user) {
-        UserDto createdUser = userService.createUser(user);
+        UserDto createdUser = userService.createWithPassword(user);
         if (createdUser == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User creation failed");
         }
         return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
     }
+
+    @PostMapping("/createFromDto")
+    public ResponseEntity<Object> createUserFromDto(@Valid @RequestBody UserDto userDto) {
+        try {
+            UserDto createdUser = userService.create(userDto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User creation failed: " + e.getMessage());
+        }
+    }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<Object> updateUser(@PathVariable Long id, @RequestBody UserDto userDto) {
