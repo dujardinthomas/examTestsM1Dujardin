@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import dujardin.thomas.examTestsM1Dujardin.dto.UserDto;
+import dujardin.thomas.examTestsM1Dujardin.exception.ObjectNotFoundException;
 import dujardin.thomas.examTestsM1Dujardin.model.User;
 import dujardin.thomas.examTestsM1Dujardin.repository.UserRepository;
 import dujardin.thomas.examTestsM1Dujardin.tools.CrudService;
@@ -27,7 +28,7 @@ public class UserService implements CrudService<User, UserDto, Long> {
 
     @Override
     public UserDto get(Long id) {
-        User user = userRepository.findById(id).orElse(null);
+        User user = userRepository.findById(id).orElseThrow(() -> new ObjectNotFoundException("User not found with id: " + id));
         return convertDaoToDTO(user);
     }
 
@@ -42,7 +43,7 @@ public class UserService implements CrudService<User, UserDto, Long> {
     @Override
     public UserDto update(UserDto dto, Long id) {
         User existingUser = userRepository.findById(id).orElse(null);
-        if (existingUser == null) return null;
+        if (existingUser == null) throw new ObjectNotFoundException("User not update because not found with id: " + id);
         existingUser.setName(dto.getName());
         existingUser.setEmail(dto.getEmail());
         User updatedUser = userRepository.save(existingUser);
@@ -52,7 +53,7 @@ public class UserService implements CrudService<User, UserDto, Long> {
     @Override
     public boolean delete(Long id) {
         if (!userRepository.existsById(id)) {
-            return false;
+            throw new ObjectNotFoundException("User not delete because not found with id: " + id);
         }
         userRepository.deleteById(id);
         return !userRepository.existsById(id);
